@@ -6,7 +6,6 @@ import java.util.Map;
 
 /**
  * 相性行列を EnumMap で管理。
- * Element.ordinal() 依存を排除し、要素追加や順序変更に強い設計。
  */
 public class ElementBoostMatrix {
     private final Map<Element, Map<Element, Double>> boostMatrix;

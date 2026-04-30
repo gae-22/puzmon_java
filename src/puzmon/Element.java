@@ -108,7 +108,6 @@ public enum Element {
 
     /**
      * 表示名から Element を取得。
-     * Map ベースで O(1) の高速検索。
      *
      * @param displayName 表示名（例："火", "風"）
      * @return 対応する Element、なければ NONE
