@@ -12,6 +12,24 @@ public final class GameData {
     /** 画面の区切り線の長さ */
     public static final int LINE_LENGTH = 29;
 
+    /** ジェムボードの初期配置 */
+    public static final Element[] INITIAL_GEMS = {
+            Element.EARTH,
+            Element.EARTH,
+            Element.FIRE,
+            Element.FIRE,
+            Element.WIND,
+            Element.WIND,
+            Element.FIRE,
+            Element.EARTH,
+            Element.WIND,
+            Element.WATER,
+            Element.FIRE,
+            Element.WATER,
+            Element.LIFE,
+            Element.LIFE,
+    };
+
     private GameData() {
     }
 

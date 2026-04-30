@@ -9,22 +9,6 @@ import java.util.Random;
  */
 public class GemBoard {
     private static final Random RANDOM = new Random();
-    private static final Element[] INITIAL_GEMS = {
-            Element.EARTH,
-            Element.EARTH,
-            Element.FIRE,
-            Element.FIRE,
-            Element.WIND,
-            Element.WIND,
-            Element.FIRE,
-            Element.EARTH,
-            Element.WIND,
-            Element.WATER,
-            Element.FIRE,
-            Element.WATER,
-            Element.LIFE,
-            Element.LIFE,
-    };
 
     private final Element[] gems = new Element[GameData.GEMS_LENGTH];
 
@@ -40,10 +24,10 @@ public class GemBoard {
      * 初期配置は固定値を使う。
      */
     public final void initialize() {
-        if (INITIAL_GEMS.length != gems.length) {
+        if (GameData.INITIAL_GEMS.length != gems.length) {
             throw new IllegalStateException("初期ジェム数がボード長と一致しません");
         }
-        System.arraycopy(INITIAL_GEMS, 0, gems, 0, gems.length);
+        System.arraycopy(GameData.INITIAL_GEMS, 0, gems, 0, gems.length);
     }
 
     /**
