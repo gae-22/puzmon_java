@@ -70,33 +70,6 @@ public class GemBoard {
     }
 
     /**
-     * ジェムを移動する。アニメーション表示付き。
-     *
-     * @param fromIndex 移動元のジェム位置
-     * @param toIndex 移動先のジェム位置
-     * @throws IndexOutOfBoundsException インデックスが範囲外の場合
-     */
-    public void moveGems(int fromIndex, int toIndex) {
-        validateIndex(fromIndex);
-        validateIndex(toIndex);
-
-        if (fromIndex == toIndex) {
-            return;
-        }
-
-        if (fromIndex < toIndex) {
-            for (int i = fromIndex; i < toIndex; i++) {
-                swapGems(i, i + 1);
-                Display.showGems(this);
-            }
-        } else {
-            for (int i = fromIndex; i > toIndex; i--) {
-                swapGems(i, i - 1);
-                Display.showGems(this);
-            }
-        }
-    }
-    /**
      * ジェムを移動する。
      *
      * @param fromIndex 移動元のジェム位置

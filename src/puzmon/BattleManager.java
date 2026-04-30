@@ -77,7 +77,7 @@ public class BattleManager {
 
         String command = commandReader.readCommand();
         int[] indexes = commandReader.parseCommand(command);
-        party.getGemBoard().moveGems(indexes[0], indexes[1]);
+        party.getGemBoard().moveGems(indexes[0], indexes[1], true);
 
         evaluateGems();
     }
