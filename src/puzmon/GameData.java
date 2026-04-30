@@ -1,13 +1,25 @@
 package puzmon;
 
+/**
+ * ゲームの定数とデータを管理するクラス。
+ * 敵とプレイヤーのモンスターデータを生成する。
+ */
 public final class GameData {
+    /** ジェムボードの長さ */
     public static final int GEMS_LENGTH = 14;
+    /** パーティの最大サイズ */
     public static final int PARTY_SIZE = 4;
+    /** 画面の区切り線の長さ */
     public static final int LINE_LENGTH = 29;
 
     private GameData() {
     }
 
+    /**
+     * 敵モンスターの配列を生成する。
+     *
+     * @return 敵モンスターの配列
+     */
     public static Monster[] createEnemies() {
         return new Monster[] {
                 new Monster("スライム", 100, Element.WATER, 10, 1),
@@ -18,6 +30,11 @@ public final class GameData {
         };
     }
 
+    /**
+     * プレイヤーのモンスター配列を生成する。
+     *
+     * @return プレイヤーモンスターの配列
+     */
     public static Monster[] createPlayers() {
         return new Monster[] {
                 new Monster("朱雀", 150, Element.FIRE, 30, 10),

@@ -11,10 +11,19 @@ import java.util.Map;
 public class ElementBoostMatrix {
     private final Map<Element, Map<Element, Double>> boostMatrix;
 
+    /**
+     * コンストラクタ。相性行列を初期化する。
+     */
     public ElementBoostMatrix() {
         this.boostMatrix = createBoostMatrix();
     }
 
+    /**
+     * 属性相性の行列を作成する。
+     * 各属性の相手属性に対する倍率を定義。
+     *
+     * @return 属性相性の行列
+     */
     private static Map<Element, Map<Element, Double>> createBoostMatrix() {
         Map<Element, Map<Element, Double>> matrix = new EnumMap<>(Element.class);
 

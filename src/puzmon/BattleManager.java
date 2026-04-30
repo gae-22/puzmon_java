@@ -3,6 +3,10 @@ package puzmon;
 import puzmon.output.OutputProvider;
 import puzmon.output.StandardOutputProvider;
 
+/**
+ * バトル進行を管理するクラス。
+ * プレイヤーと敵のターン処理、ジェムの評価、ダメージ計算を統括する。
+ */
 public class BattleManager {
     private final Party party;
     private final Monster enemy;
@@ -10,10 +14,25 @@ public class BattleManager {
     private final DamageCalculator damageCalculator;
     private final OutputProvider output;
 
+    /**
+     * コンストラクタ。デフォルトの出力プロバイダを使用。
+     *
+     * @param party プレイヤーのパーティ
+     * @param enemy 敵モンスター
+     * @param commandReader コマンド入力用リーダー
+     */
     public BattleManager(Party party, Monster enemy, CommandReader commandReader) {
         this(party, enemy, commandReader, new StandardOutputProvider());
     }
 
+    /**
+     * コンストラクタ。出力プロバイダを指定。
+     *
+     * @param party プレイヤーのパーティ
+     * @param enemy 敵モンスター
+     * @param commandReader コマンド入力用リーダー
+     * @param output 出力プロバイダ
+     */
     public BattleManager(Party party, Monster enemy, CommandReader commandReader, OutputProvider output) {
         this.party = party;
         this.enemy = enemy;
@@ -22,6 +41,12 @@ public class BattleManager {
         this.output = output;
     }
 
+    /**
+     * バトルを開始する。
+     * プレイヤーターンと敵ターンを交互に繰り返し、どちらかが戦闘不能になるまで続ける。
+     *
+     * @return 勝利した場合はtrue、敗北した場合はfalse
+     */
     public boolean battle() {
         Display.showMonsterName(enemy);
         output.println("が現れた！");
@@ -42,6 +67,10 @@ public class BattleManager {
         }
     }
 
+    /**
+     * プレイヤーターンを実行する。
+     * ジェムの移動入力を受け付け、ジェムを評価する。
+     */
     public void playerTurn() {
         output.printf("%n【%sのターン】(HP=%d)%n", party.getName(), party.getTotalHp());
         Display.showBattleField(party, enemy);
@@ -53,6 +82,10 @@ public class BattleManager {
         evaluateGems();
     }
 
+    /**
+     * 敵ターンを実行する。
+     * 敵がプレイヤーパーティにダメージを与える。
+     */
     public void enemyTurn() {
         output.printf("【%sのターン】(HP=%d)%n", enemy.getName(), enemy.getHp());
         int baseDamage = enemy.getAttackPower() - party.getAverageDefense();
@@ -61,6 +94,10 @@ public class BattleManager {
         party.takeDamage(damage);
     }
 
+    /**
+     * ジェムを評価し、マッチしたジェムに対してアクションを実行する。
+     * コンボカウントを管理し、攻撃と回復を処理する。
+     */
     public void evaluateGems() {
         int combo = 0;
 
@@ -93,6 +130,14 @@ public class BattleManager {
         output.println("");
     }
 
+    /**
+     * 攻撃を実行する。
+     * 最終ダメージを計算して敵に与える。
+     *
+     * @param friend 攻撃側のモンスター
+     * @param matchCount マッチしたジェム数
+     * @param combo コンボカウント
+     */
     private void doAttack(Monster friend, int matchCount, int combo) {
         int damage = damageCalculator.calculateFinalDamage(
                 friend.getAttackPower(),
@@ -116,6 +161,13 @@ public class BattleManager {
         enemy.takeDamage(damage);
     }
 
+    /**
+     * パーティを回復する。
+     * ジェム数とコンボ数に応じた回復量を計算し、パーティを回復させる。
+     *
+     * @param matchCount マッチしたジェム数
+     * @param combo コンボカウント
+     */
     private void doRecover(int matchCount, int combo) {
         double comboBoost = damageCalculator.getComboBoost(matchCount, combo);
         int heal = Math.max(1, (int) (20 * comboBoost * damageCalculator.getRandomFactor()));

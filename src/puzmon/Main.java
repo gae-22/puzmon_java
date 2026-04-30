@@ -1,11 +1,21 @@
 package puzmon;
 
+import java.util.Arrays;
 import puzmon.input.SystemInInputProvider;
 import puzmon.output.OutputProvider;
 import puzmon.output.StandardOutputProvider;
-import java.util.Arrays;
 
+/**
+ * ゲーム「Puzzle & Monsters」のメインクラス。
+ * ゲームの初期化と進行を管理する。
+ */
 public class Main {
+    /**
+     * ゲームのメインメソッド。
+     * プレイヤーの入力を受け付け、複数の敵とのバトルを進行させる。
+     *
+     * @param args コマンドライン引数（使用されない）
+     */
     public static void main(String[] args) {
         OutputProvider output = new StandardOutputProvider();
         Display.setOutputProvider(output);
