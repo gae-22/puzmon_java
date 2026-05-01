@@ -60,3 +60,4 @@ local.properties
 #.project
 
 .DS_Store
+.vscode
