@@ -11,12 +11,23 @@ public class GemBoard {
     private static final Random RANDOM = new Random();
 
     private final Element[] gems = new Element[GameData.GEMS_LENGTH];
+    private Display display;
 
     /**
      * コンストラクタ。ジェムボードを初期化する。
      */
     public GemBoard() {
         initialize();
+        this.display = null;
+    }
+
+    /**
+     * 表示オブジェクトを設定する。
+     *
+     * @param display 表示用のDisplayオブジェクト
+     */
+    public void setDisplay(Display display) {
+        this.display = display;
     }
 
     /**
@@ -74,10 +85,9 @@ public class GemBoard {
      *
      * @param fromIndex 移動元のジェム位置
      * @param toIndex 移動先のジェム位置
-     * @param animate アニメーション表示の有無
      * @throws IndexOutOfBoundsException インデックスが範囲外の場合
      */
-    public void moveGems(int fromIndex, int toIndex, Display display) {
+    public void moveGems(int fromIndex, int toIndex) {
         validateIndex(fromIndex);
         validateIndex(toIndex);
 
@@ -88,18 +98,15 @@ public class GemBoard {
         if (fromIndex < toIndex) {
             for (int i = fromIndex; i < toIndex; i++) {
                 swapGems(i, i + 1);
-                if (display != null) {
-                    display.showGems(this);
-                }
             }
         } else {
             for (int i = fromIndex; i > toIndex; i--) {
                 swapGems(i, i - 1);
-                if (display != null) {
-                    display.showGems(this);
-                }
             }
         }
+
+        showAndWait(300);
+
     }
 
     /**
@@ -164,6 +171,9 @@ public class GemBoard {
             gems[i] = Element.NONE;
         }
 
+        showAndWait(500);
+
+
     }
 
     /**
@@ -174,7 +184,7 @@ public class GemBoard {
         for (int i = gems.length - 1; i >= 0; i--) {
             if (gems[i] == Element.NONE) {
                 noneCnt++;
-                moveGems(i, gems.length - noneCnt, null);
+                moveGems(i, gems.length - noneCnt);
             }
         }
     }
@@ -188,6 +198,8 @@ public class GemBoard {
                 gems[i] = Element.randomPlayable(RANDOM);
             }
         }
+
+        showAndWait(300);
     }
 
     /**
@@ -213,6 +225,23 @@ public class GemBoard {
     private void validateIndex(int index) {
         if (index < 0 || index >= gems.length) {
             throw new IndexOutOfBoundsException("無効なジェム位置です: " + index);
+        }
+    }
+
+    /**
+     * ボード状態を表示して、指定時間待機する。
+     *
+     * @param millis 待機時間（ミリ秒）
+     */
+    private void showAndWait(long millis) {
+        if (display != null) {
+            display.showGems(this);
+        }
+
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }

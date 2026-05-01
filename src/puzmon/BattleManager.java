@@ -54,6 +54,7 @@ public class BattleManager {
         this.display = display;
         this.damageCalculator = new DamageCalculator();
         this.output = output;
+        party.getGemBoard().setDisplay(display);
     }
 
     /**
@@ -128,7 +129,7 @@ public class BattleManager {
     }
 
     private void moveGems(int[] indexes) {
-        party.getGemBoard().moveGems(indexes[0], indexes[1], display);
+        party.getGemBoard().moveGems(indexes[0], indexes[1]);
     }
 
     private boolean handleEnemyDefeat() {
@@ -146,7 +147,6 @@ public class BattleManager {
         int matchCount = board.getMatchCount(matchIndex);
         Element element = board.getGem(matchIndex);
         board.clearGems(matchIndex, matchCount);
-        display.showGems(board);
 
         if (element == Element.LIFE) {
             doRecover(matchCount, combo);
@@ -170,9 +170,7 @@ public class BattleManager {
         }
 
         board.shiftGems();
-        display.showGems(board);
         board.spawnGems();
-        display.showGems(board);
     }
 
     /**

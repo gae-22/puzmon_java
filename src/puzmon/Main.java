@@ -50,6 +50,12 @@ public class Main {
             } else {
                 break;
             }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
 
         if (winCount >= dungeon.getTotalFloors()) {
