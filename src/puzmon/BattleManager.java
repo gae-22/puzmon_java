@@ -70,6 +70,7 @@ public class BattleManager {
         while (true) {
             playerTurn();
             if (handleEnemyDefeat()) {
+                waitForNextTurn(500);
                 return true;
             }
 
@@ -219,5 +220,18 @@ public class BattleManager {
         party.heal(heal);
         int actualHeal = party.getTotalHp() - beforeHp;
         output.printf("%sのHPは %d 回復した%n", party.getName(), actualHeal);
+    }
+
+    /**
+     * 次のターンまで一定時間待機する。
+     *
+     * @param millis 待機時間（ミリ秒）
+     */
+    private void waitForNextTurn(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
