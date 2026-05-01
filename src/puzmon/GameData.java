@@ -1,5 +1,8 @@
 package puzmon;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * ゲームの定数とデータを管理するクラス。
  * 敵とプレイヤーのモンスターデータを生成する。
@@ -60,5 +63,25 @@ public final class GameData {
                 new Monster("白虎", 150, Element.EARTH, 25, 5),
                 new Monster("玄武", 150, Element.WATER, 25, 15),
         };
+    }
+
+    /**
+     * パーティを生成する。
+     *
+     * @param name パーティ名
+     * @return パーティ
+     */
+    public static Party createParty(String name) {
+        return new Party(name, Arrays.asList(createPlayers()));
+    }
+
+    /**
+     * ダンジョンを生成する。
+     *
+     * @return ダンジョン
+     */
+    public static Dungeon createDungeon() {
+        List<Monster> floors = Arrays.asList(createEnemies());
+        return new Dungeon("Flair Dungeon", floors);
     }
 }

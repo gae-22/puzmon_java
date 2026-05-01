@@ -10,6 +10,13 @@ import puzmon.output.StandardOutputProvider;
  * プレイヤー名の入力、ジェム移動コマンドの入力と検証を行う。
  */
 public class CommandReader {
+    private static final String PLAYER_NAME_PROMPT = "プレイヤー名を入力してください>";
+    private static final String COMMAND_PROMPT = "コマンド？>";
+    private static final String ERROR_PLAYER_NAME = "エラー：プレイヤー名を入力してください";
+    private static final String ERROR_TWO_CHAR = "2文字で入力して下さい。";
+    private static final String ERROR_RANGE = "A~Nの範囲で入力してください";
+    private static final String ERROR_SAME_CHAR = "1文字目と2文字目が同じ値です";
+
     private final InputProvider inputProvider;
     private final OutputProvider output;
 
@@ -48,12 +55,12 @@ public class CommandReader {
      */
     public String readPlayerName() {
         while (true) {
-            output.print("プレイヤー名を入力してください>");
+            output.print(PLAYER_NAME_PROMPT);
             String playerName = inputProvider.nextLine();
             if (!playerName.isEmpty()) {
                 return playerName;
             }
-            output.println("エラー：プレイヤー名を入力してください");
+            output.println(ERROR_PLAYER_NAME);
         }
     }
 
@@ -65,7 +72,7 @@ public class CommandReader {
      */
     public String readCommand() {
         while (true) {
-            output.print("コマンド？>");
+            output.print(COMMAND_PROMPT);
             String command = inputProvider.nextLine();
             if (isValidCommand(command)) {
                 return command;
@@ -94,29 +101,29 @@ public class CommandReader {
      */
     private boolean isValidCommand(String command) {
         if (command == null) {
-            output.println("2文字で入力して下さい。");
+            output.println(ERROR_TWO_CHAR);
             return false;
         }
 
         if (command.length() != 2) {
-            output.println("2文字で入力して下さい。");
+            output.println(ERROR_TWO_CHAR);
             return false;
         }
 
         int beforeIndex = parseIndex(command.charAt(0));
         int afterIndex = parseIndex(command.charAt(1));
         if (beforeIndex < 0 || afterIndex < 0) {
-            output.println("A~Nの範囲で入力してください");
+            output.println(ERROR_RANGE);
             return false;
         }
 
         if (beforeIndex >= GameData.GEMS_LENGTH || afterIndex >= GameData.GEMS_LENGTH) {
-            output.println("A~Nの範囲で入力してください");
+            output.println(ERROR_RANGE);
             return false;
         }
 
         if (beforeIndex == afterIndex) {
-            output.println("1文字目と2文字目が同じ値です");
+            output.println(ERROR_SAME_CHAR);
             return false;
         }
 
@@ -124,8 +131,8 @@ public class CommandReader {
     }
 
     /**
-     * 文字をジェムインデックスに変換する。
-     * A-Nまたは0-9の文字を受け付ける。
+    * 文字をジェムインデックスに変換する。
+    * A-Nの文字を受け付ける。
      *
      * @param character 変換する文字
      * @return インデックス値、無効な文字の場合は-1
@@ -134,9 +141,6 @@ public class CommandReader {
         char upper = Character.toUpperCase(character);
         if (upper >= 'A' && upper <= 'N') {
             return upper - 'A';
-        }
-        if (upper >= '0' && upper <= '9') {
-            return upper - '0';
         }
         return -1;
     }

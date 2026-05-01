@@ -50,7 +50,7 @@ public class DamageCalculator {
             throw new IllegalArgumentException("ジェム数とコンボ数は非負である必要があります");
         }
         int boostValue = Math.max(1, gemCount - 3 + comboCount);
-        return Math.pow(1.5, boostValue);
+        return Math.pow(BattleConstants.COMBO_MULTIPLIER_BASE, boostValue);
     }
 
     /**
@@ -60,7 +60,9 @@ public class DamageCalculator {
      * @return ランダム因子（0.9～1.1）
      */
     public double getRandomFactor() {
-        return 1.0 + ThreadLocalRandom.current().nextDouble(-0.1, 0.1);
+        return 1.0 + ThreadLocalRandom.current().nextDouble(
+                -BattleConstants.RANDOM_FACTOR_OFFSET,
+                BattleConstants.RANDOM_FACTOR_OFFSET);
     }
 
     /**
@@ -89,6 +91,6 @@ public class DamageCalculator {
         double randomFactor = getRandomFactor();
 
         double result = baseDamage * elementBoost * comboBoost * randomFactor;
-        return Math.max(1, (int) result);
+        return Math.max(BattleConstants.MIN_DAMAGE, (int) result);
     }
 }

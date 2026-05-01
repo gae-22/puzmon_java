@@ -77,7 +77,7 @@ public class GemBoard {
      * @param animate アニメーション表示の有無
      * @throws IndexOutOfBoundsException インデックスが範囲外の場合
      */
-    public void moveGems(int fromIndex, int toIndex, boolean animate) {
+    public void moveGems(int fromIndex, int toIndex, Display display) {
         validateIndex(fromIndex);
         validateIndex(toIndex);
 
@@ -88,15 +88,15 @@ public class GemBoard {
         if (fromIndex < toIndex) {
             for (int i = fromIndex; i < toIndex; i++) {
                 swapGems(i, i + 1);
-                if (animate) {
-                    Display.showGems(this);
+                if (display != null) {
+                    display.showGems(this);
                 }
             }
         } else {
             for (int i = fromIndex; i > toIndex; i--) {
                 swapGems(i, i - 1);
-                if (animate) {
-                    Display.showGems(this);
+                if (display != null) {
+                    display.showGems(this);
                 }
             }
         }
@@ -164,21 +164,17 @@ public class GemBoard {
             gems[i] = Element.NONE;
         }
 
-        Display.showGems(this);
     }
 
     /**
      * 空きセルを埋めるため、ジェムを移動させる。
      */
     public void shiftGems() {
-        Display.showGems(this);
-
         int noneCnt = 0;
         for (int i = gems.length - 1; i >= 0; i--) {
             if (gems[i] == Element.NONE) {
                 noneCnt++;
-                moveGems(i, gems.length - noneCnt, false);
-                Display.showGems(this);
+                moveGems(i, gems.length - noneCnt, null);
             }
         }
     }
@@ -192,8 +188,6 @@ public class GemBoard {
                 gems[i] = Element.randomPlayable(RANDOM);
             }
         }
-
-        Display.showGems(this);
     }
 
     /**

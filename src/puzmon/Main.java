@@ -1,6 +1,5 @@
 package puzmon;
 
-import java.util.Arrays;
 import puzmon.input.SystemInInputProvider;
 import puzmon.output.OutputProvider;
 import puzmon.output.StandardOutputProvider;
@@ -18,21 +17,23 @@ public class Main {
      */
     public static void main(String[] args) {
         OutputProvider output = new StandardOutputProvider();
-        Display.setOutputProvider(output);
+        Display display = new Display(output);
 
         CommandReader commandReader = new CommandReader(new SystemInInputProvider(), output);
 
         String playerName = commandReader.readPlayerName();
         output.println("*** Puzzle & Monsters ***");
 
-        Party party = new Party(playerName, Arrays.asList(GameData.createPlayers()));
-        Display.showPartyInfo(party);
+        Party party = GameData.createParty(playerName);
+        display.showPartyInfo(party);
 
-        Monster[] enemies = GameData.createEnemies();
+        Dungeon dungeon = GameData.createDungeon();
+
         int winCount = 0;
 
-        for (Monster enemy : enemies) {
-            BattleManager battleManager = new BattleManager(party, enemy, commandReader, output);
+        while (dungeon.getCurrentFloorEnemy() != null) {
+            Monster enemy = dungeon.getCurrentFloorEnemy();
+            BattleManager battleManager = new BattleManager(party, enemy, commandReader, display, output);
             boolean won = battleManager.battle();
             if (won) {
                 winCount++;
@@ -43,13 +44,15 @@ public class Main {
                 break;
             }
 
-            if (winCount < enemies.length) {
+            if (dungeon.advanceFloor()) {
                 output.println(party.getName() + "はさらに奥へと進んだ");
                 output.println("=".repeat(GameData.LINE_LENGTH));
+            } else {
+                break;
             }
         }
 
-        if (winCount >= enemies.length) {
+        if (winCount >= dungeon.getTotalFloors()) {
             output.println("*** GAME CLEARED!! ***");
         } else {
             output.println("*** GAME OVER!! ***");

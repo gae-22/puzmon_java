@@ -11,6 +11,7 @@ public class BattleManager {
     private final Party party;
     private final Monster enemy;
     private final CommandReader commandReader;
+    private final Display display;
     private final DamageCalculator damageCalculator;
     private final OutputProvider output;
 
@@ -22,7 +23,7 @@ public class BattleManager {
      * @param commandReader コマンド入力用リーダー
      */
     public BattleManager(Party party, Monster enemy, CommandReader commandReader) {
-        this(party, enemy, commandReader, new StandardOutputProvider());
+        this(party, enemy, commandReader, new Display(new StandardOutputProvider()), new StandardOutputProvider());
     }
 
     /**
@@ -34,9 +35,23 @@ public class BattleManager {
      * @param output 出力プロバイダ
      */
     public BattleManager(Party party, Monster enemy, CommandReader commandReader, OutputProvider output) {
+        this(party, enemy, commandReader, new Display(output), output);
+    }
+
+    /**
+     * コンストラクタ。表示クラスと出力プロバイダを指定。
+     *
+     * @param party プレイヤーのパーティ
+     * @param enemy 敵モンスター
+     * @param commandReader コマンド入力用リーダー
+     * @param display 表示クラス
+     * @param output 出力プロバイダ
+     */
+    public BattleManager(Party party, Monster enemy, CommandReader commandReader, Display display, OutputProvider output) {
         this.party = party;
         this.enemy = enemy;
         this.commandReader = commandReader;
+        this.display = display;
         this.damageCalculator = new DamageCalculator();
         this.output = output;
     }
@@ -48,14 +63,12 @@ public class BattleManager {
      * @return 勝利した場合はtrue、敗北した場合はfalse
      */
     public boolean battle() {
-        Display.showMonsterName(enemy);
+        display.showMonsterName(enemy);
         output.println("が現れた！");
 
         while (true) {
             playerTurn();
-            if (enemy.isDead()) {
-                Display.showMonsterName(enemy);
-                output.println("を倒した！");
+            if (handleEnemyDefeat()) {
                 return true;
             }
 
@@ -73,11 +86,11 @@ public class BattleManager {
      */
     public void playerTurn() {
         output.printf("%n【%sのターン】(HP=%d)%n", party.getName(), party.getTotalHp());
-        Display.showBattleField(party, enemy);
+        display.showBattleField(party, enemy);
 
         String command = commandReader.readCommand();
         int[] indexes = commandReader.parseCommand(command);
-        party.getGemBoard().moveGems(indexes[0], indexes[1], true);
+        moveGems(indexes);
 
         evaluateGems();
     }
@@ -89,7 +102,7 @@ public class BattleManager {
     public void enemyTurn() {
         output.printf("【%sのターン】(HP=%d)%n", enemy.getName(), enemy.getHp());
         int baseDamage = enemy.getAttackPower() - party.getAverageDefense();
-        int damage = Math.max(1, (int) (baseDamage * damageCalculator.getRandomFactor()));
+        int damage = Math.max(BattleConstants.MIN_DAMAGE, (int) (baseDamage * damageCalculator.getRandomFactor()));
         output.printf("%d のダメージを受けた%n", damage);
         party.takeDamage(damage);
     }
@@ -107,27 +120,59 @@ public class BattleManager {
                 break;
             }
 
-            int matchCount = party.getGemBoard().getMatchCount(matchIndex);
-            Element element = party.getGemBoard().getGem(matchIndex);
-            party.getGemBoard().clearGems(matchIndex, matchCount);
-
-            if (element == Element.LIFE) {
-                doRecover(matchCount, combo);
-            } else {
-                Monster friend = party.findFriendByElement(element);
-                if (friend != null) {
-                    combo++;
-                    doAttack(friend, matchCount, combo);
-                }
-            }
-
-            if (party.getGemBoard().hasEmptyCells()) {
-                party.getGemBoard().shiftGems();
-                party.getGemBoard().spawnGems();
-            }
+            combo = resolveMatch(matchIndex, combo);
+            refillBoardIfNeeded();
         }
 
         output.println("");
+    }
+
+    private void moveGems(int[] indexes) {
+        party.getGemBoard().moveGems(indexes[0], indexes[1], display);
+    }
+
+    private boolean handleEnemyDefeat() {
+        if (!enemy.isDead()) {
+            return false;
+        }
+
+        display.showMonsterName(enemy);
+        output.println("を倒した！");
+        return true;
+    }
+
+    private int resolveMatch(int matchIndex, int combo) {
+        GemBoard board = party.getGemBoard();
+        int matchCount = board.getMatchCount(matchIndex);
+        Element element = board.getGem(matchIndex);
+        board.clearGems(matchIndex, matchCount);
+        display.showGems(board);
+
+        if (element == Element.LIFE) {
+            doRecover(matchCount, combo);
+            return combo;
+        }
+
+        Monster friend = party.findFriendByElement(element);
+        if (friend != null) {
+            int nextCombo = combo + 1;
+            doAttack(friend, matchCount, nextCombo);
+            return nextCombo;
+        }
+
+        return combo;
+    }
+
+    private void refillBoardIfNeeded() {
+        GemBoard board = party.getGemBoard();
+        if (!board.hasEmptyCells()) {
+            return;
+        }
+
+        board.shiftGems();
+        display.showGems(board);
+        board.spawnGems();
+        display.showGems(board);
     }
 
     /**
@@ -148,14 +193,14 @@ public class BattleManager {
                 combo);
 
         output.println("");
-        Display.showMonsterName(friend);
+        display.showMonsterName(friend);
         output.print("の攻撃！");
         if (combo > 1) {
             output.print(" " + combo + " Combo!!");
         }
         output.println("");
 
-        Display.showMonsterName(enemy);
+        display.showMonsterName(enemy);
         output.printf("に %d のダメージを与えた%n", damage);
         output.println("");
         enemy.takeDamage(damage);
@@ -170,7 +215,8 @@ public class BattleManager {
      */
     private void doRecover(int matchCount, int combo) {
         double comboBoost = damageCalculator.getComboBoost(matchCount, combo);
-        int heal = Math.max(1, (int) (20 * comboBoost * damageCalculator.getRandomFactor()));
+        int heal = Math.max(BattleConstants.MIN_DAMAGE,
+                (int) (BattleConstants.RECOVERY_BASE_AMOUNT * comboBoost * damageCalculator.getRandomFactor()));
         int beforeHp = party.getTotalHp();
         party.heal(heal);
         int actualHeal = party.getTotalHp() - beforeHp;

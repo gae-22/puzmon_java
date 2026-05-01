@@ -1,35 +1,30 @@
 package puzmon;
 
 import puzmon.output.OutputProvider;
-import puzmon.output.StandardOutputProvider;
 
 /**
  * バトル画面の表示を管理するクラス。
  * パーティ情報、バトルフィールド、ジェム状態などを表示する。
  */
 public class Display {
-    private static OutputProvider output = new StandardOutputProvider();
+    private final OutputProvider output;
 
     /**
-     * 出力プロバイダを設定（テスト時等に使用）。
+     * 出力プロバイダを受け取って表示クラスを作成する。
+     *
+     * @param output 出力プロバイダ
      */
-    public static void setOutputProvider(OutputProvider provider) {
-        output = provider;
+    public Display(OutputProvider output) {
+        this.output = output;
     }
 
-    /**
-     * 出力プロバイダをリセット。
-     */
-    public static void resetOutputProvider() {
-        output = new StandardOutputProvider();
-    }
     /**
      * パーティの情報を表示する。
      * パーティに属する各モンスターのHPと攻防を表示。
      *
      * @param party 表示するパーティ
      */
-    public static void showPartyInfo(Party party) {
+    public void showPartyInfo(Party party) {
         output.println("＜パーティ編成＞");
         printLine();
         for (Monster friend : party.getFriends()) {
@@ -48,7 +43,7 @@ public class Display {
      * @param party プレイヤーのパーティ
      * @param enemy 敵モンスター
      */
-    public static void showBattleField(Party party, Monster enemy) {
+    public void showBattleField(Party party, Monster enemy) {
         output.println("バトルフィールド");
         showMonsterName(enemy);
         output.printf(" HP = %3d / %3d%n%n", enemy.getHp(), enemy.getMaxHp());
@@ -78,7 +73,7 @@ public class Display {
      *
      * @param board 表示するジェムボード
      */
-    public static void showGems(GemBoard board) {
+    public void showGems(GemBoard board) {
         Element[] gems = board.getGems();
         for (int i = 0; i < gems.length; i++) {
             if (i > 0) {
@@ -95,12 +90,11 @@ public class Display {
      *
      * @param monster 表示するモンスター
      */
-    public static void showMonsterName(Monster monster) {
-        Element element = monster.getElement();
-        String symbol = element.getSymbol();
-        String color = "4" + element.getColorCode();
-        String ansiSequence = "\u001B[" + color + "m\u001B[30m" + symbol + monster.getName() + symbol + "\u001B[0m";
-        output.print(ansiSequence);
+    public void showMonsterName(Monster monster) {
+        output.print(formatColoredText(
+                monster.getElement(),
+                monster.getName(),
+                true));
     }
 
     /**
@@ -108,17 +102,21 @@ public class Display {
      *
      * @param element 表示するジェムの属性
      */
-    private static void showGem(Element element) {
+    private void showGem(Element element) {
+        output.print(formatColoredText(element, "", false));
+    }
+
+    private String formatColoredText(Element element, String text, boolean wrapWithSymbol) {
         String symbol = element.getSymbol();
         String color = "4" + element.getColorCode();
-        String ansiSequence = "\u001B[" + color + "m\u001B[30m" + symbol + "\u001B[0m";
-        output.print(ansiSequence);
+        String body = wrapWithSymbol ? symbol + text + symbol : symbol;
+        return "\u001B[" + color + "m\u001B[30m" + body + "\u001B[0m";
     }
 
     /**
      * 区切り線を表示する。
      */
-    public static void printLine() {
+    public void printLine() {
         output.println("-".repeat(GameData.LINE_LENGTH));
     }
 }
