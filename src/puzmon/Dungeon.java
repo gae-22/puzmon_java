@@ -16,12 +16,8 @@ public class Dungeon {
     public Dungeon(String name, List<Monster> floors) {
         this.name = name;
         this.floors = new ArrayList<>();
-        if (floors != null) {
-            for (Monster floor : floors) {
-                if (floor != null) {
-                    this.floors.add(floor);
-                }
-            }
+        for (Monster floor : floors) {
+            this.floors.add(floor);
         }
         this.currentFloorIndex = 0;
     }
